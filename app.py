@@ -1,23 +1,25 @@
-from cleaning import read_csv_data, make_binary_cols
-from training import train_random_forest, evaluate_model, make_train_test
-from deploy import save_model
+from flask import Flask
+from flask import request
+import pandas as pd
+import joblib
 
-diabetes_data = read_csv_data("data/diabetes_risk_prediction_dataset.csv")
 
-dict_to_replace = {
-    'Yes' : 1, 'No' : 0,
-    'Male' : 1, 'Female' : 0,
-    'Positive' : 1, 'Negative' : 0}
+app = Flask(__name__)
 
-clean_data = make_binary_cols(diabetes_data, dict_to_replace)
+@app.route('/predice', methods=['POST'])
+def predict():
+    json_ = request.json
+    query_df = pd.DataFrame(json_, index=[0])
+    query = pd.get_dummies(query_df)
 
-X_train, X_test, y_train, y_test = make_train_test(clean_data, 'class')
+    classifier = joblib.load('models/modelo_prueba_1.joblib')
+    prediction = classifier.predict(query)
 
-random_forest_model = train_random_forest(X_train, y_train)
+    if prediction[0] :
+        return "TRUE: El paciente no tiene diabetes"
+    else :
+        return "FALSE: El paciente si tiene diabetes"
 
-score, report = evaluate_model(random_forest_model, X_test, y_test)
 
-print(f'El modelo tiene un accuracy de: {score}')
-print(report)
-
-save_model(random_forest_model)
+if __name__ == "__main__":
+    app.run(port=8000, debug=True)
