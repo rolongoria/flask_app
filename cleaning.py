@@ -18,7 +18,7 @@ def read_csv_data(path: str) -> pd.DataFrame:
     
     except FileNotFoundError as e:
         print(f'Error: {e}. The file {path} does not exist.')
-    except pd.errors.EmptyDataError as e:
+    except pd.errors.EmptyDataError as e: 
         print(f'Error: {e}. The file {path} is empty')
     except Exception as e:
         print(f'Error: {e}. An unexpected error ocurred.')
